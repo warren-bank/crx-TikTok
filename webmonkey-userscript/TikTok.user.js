@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TikTok
 // @description  Watch videos in external player.
-// @version      1.0.0
+// @version      2.0.0
 // @include      /^https?:\/\/(?:[^\.\/]*\.)*tiktok\.com\/.*$/
 // @icon         https://www.tiktok.com/favicon.ico
 // @run-at       document-end
@@ -375,44 +375,36 @@ var get_video_data = function() {
 
   try {
     var script
-    script = unsafeWindow.document.querySelector('script[type="application/json"]#SIGI_STATE')
+    script = unsafeWindow.document.querySelector('script[type="application/json"]#__UNIVERSAL_DATA_FOR_REHYDRATION__')
     script = script.innerHTML
     script = JSON.parse(script)
 
-    var video_ids, video_id, video, video_url, video_type
-    video_ids = Object.keys(script.ItemModule)
-    for (var i=0; i < video_ids.length; i++) {
-      video_id   = video_ids[i]
-      video      = script.ItemModule[video_id]
-      video      = video.video
-      video_url  = video.playAddr
-      video_type = video.format
-
-      if (video_url) {
-        if (video_type) {
-          switch(video_type.toLowerCase()) {
-            case 'mp4':
-              video_url += '#video.mp4'
-              video_type = 'video/mp4'
-              break
-            case 'hls':
-              video_url += '#video.m3u8'
-              video_type = 'application/x-mpegurl'
-              break
-            case 'dash':
-              video_url += '#video.mpd'
-              video_type = 'application/dash+xml'
-              break
-            default:
-              video_type = ''
-              break
-          }
-        }
-        break
-      }
-    }
+    var video, video_url, video_type
+    video      = script['__DEFAULT_SCOPE__']['webapp.video-detail'].itemInfo.itemStruct.video
+    video_url  = video.playAddr
+    video_type = video.format
 
     if (video_url) {
+      if (video_type) {
+        switch(video_type.toLowerCase()) {
+          case 'mp4':
+            video_url += '#video.mp4'
+            video_type = 'video/mp4'
+            break
+          case 'hls':
+            video_url += '#video.m3u8'
+            video_type = 'application/x-mpegurl'
+            break
+          case 'dash':
+            video_url += '#video.mpd'
+            video_type = 'application/dash+xml'
+            break
+          default:
+            video_type = ''
+            break
+        }
+      }
+
       video_data.video_url  = video_url
       video_data.video_type = video_type
     }
